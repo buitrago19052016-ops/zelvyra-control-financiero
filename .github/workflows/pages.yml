@@ -1,0 +1,67 @@
+name: Deploy ZELVYRA to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Extraer proyecto ZELVYRA
+        run: |
+          mkdir -p project
+          ZIP=$(find . -maxdepth 1 -type f -iname "*.zip" | head -1)
+          unzip -q "$ZIP" -d project
+
+      - name: Instalar dependencias y compilar
+        run: |
+          PKG=$(find project -name package.json -not -path "*/node_modules/*" | head -1)
+          APP_DIR=$(dirname "$PKG")
+          cd "$APP_DIR"
+          npm install
+          npm run build
+          DIST_DIR=$(find "$GITHUB_WORKSPACE/project" -type d -name dist | head -1)
+          echo "DIST_DIR=$DIST_DIR" >> "$GITHUB_ENV"
+
+      - name: Preparar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir aplicación
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.DIST_DIR }}
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Publicar ZELVYRA
+        id: deployment
+        uses: actions/deploy-pages@v4
