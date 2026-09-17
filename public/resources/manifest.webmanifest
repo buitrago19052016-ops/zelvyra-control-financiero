@@ -1,0 +1,12 @@
+{
+  "name": "ZELVYRA — Control Financiero",
+  "short_name": "ZELVYRA",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#070605",
+  "theme_color": "#0a0908",
+  "description": "Control financiero personal, metas de ahorro y seguimiento mensual.",
+  "icons": [
+    {"src":"./resources/zelvyra-emblem.png","sizes":"1024x1024","type":"image/png","purpose":"any maskable"}
+  ]
+}
